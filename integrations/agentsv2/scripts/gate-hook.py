@@ -136,8 +136,10 @@ def handle_pre_tool_use(payload: dict[str, Any]) -> dict[str, Any]:
 
     # Allow files outside the project root (e.g., Antigravity brain/scratch artifacts)
     target_path = Path(target_file).expanduser()
-    if not target_path.is_absolute() and payload.get("cwd"):
-        target_path = Path(str(payload["cwd"])) / target_path
+    if not target_path.is_absolute():
+        base_dir = payload.get("cwd") or (payload.get("workspacePaths") or [""])[0]
+        if base_dir:
+            target_path = Path(str(base_dir)) / target_path
     try:
         rel = target_path.resolve().relative_to(root.resolve())
     except ValueError:
@@ -223,15 +225,39 @@ def handle_stop(payload: dict[str, Any]) -> dict[str, Any]:
     return {}
 
 
+def parse_cli_event(argv: list[str]) -> str:
+    """Read optional --event <name> argument without pulling heavy parsers."""
+    for idx, arg in enumerate(argv):
+        if arg == "--event" and idx + 1 < len(argv):
+            return argv[idx + 1]
+        if arg.startswith("--event="):
+            return arg.split("=", 1)[1]
+    return ""
+
+
+def infer_event(cli_event: str, payload: dict[str, Any]) -> str:
+    """Resolve hook event name from CLI flag, payload hookEventName, or shape."""
+    if cli_event:
+        return cli_event
+    if payload.get("hookEventName"):
+        return str(payload["hookEventName"])
+    if "toolCall" in payload:
+        return "PreToolUse"
+    if "terminationReason" in payload or "executionNum" in payload:
+        return "Stop"
+    return ""
+
+
 def main() -> int:
+    cli_event = parse_cli_event(sys.argv[1:])
     try:
         raw = sys.stdin.read()
         payload = json.loads(raw) if raw.strip() else {}
     except json.JSONDecodeError:
-        print("{}")
+        print('{"decision": "allow"}' if cli_event == "PreToolUse" else "{}")
         return 0
 
-    event = str(payload.get("hookEventName") or "")
+    event = infer_event(cli_event, payload)
     if event == "PreToolUse":
         result = handle_pre_tool_use(payload)
     elif event == "Stop":

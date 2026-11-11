@@ -102,7 +102,15 @@ else
   pass "create-subagent rejects unknown Antigravity tool names"
 fi
 
-# 8. Sandbox install test
+# 8b. Regression test: real Antigravity payload omits hookEventName and cwd
+dec_live_unmanaged="$(printf '{"workspacePaths":["%s"],"toolCall":{"name":"write_to_file","args":{"TargetFile":"/tmp/artifact.md"}}}' "$unmanaged" | python3 "$GATE_HOOK" --event PreToolUse | python3 -c 'import json,sys; print(json.load(sys.stdin).get("decision"))')"
+[[ "$dec_live_unmanaged" == "allow" ]] && pass "hook allows external/unmanaged write when hookEventName omitted" || fail "live unmanaged decision=$dec_live_unmanaged"
+
+bash "$INIT_SCRIPT" --project "$proj_brown" --init >/dev/null
+dec_live_deny="$(printf '{"workspacePaths":["%s"],"toolCall":{"name":"write_to_file","args":{"TargetFile":"%s/src/main.py"}}}' "$proj_brown" "$proj_brown" | python3 "$GATE_HOOK" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("decision"))')"
+[[ "$dec_live_deny" == "deny" ]] && pass "hook infers PreToolUse and denies brownfield write without hookEventName" || fail "live brownfield deny decision=$dec_live_deny"
+
+# 9. Sandbox install test
 sandbox_home="$TMP/home"
 mkdir -p "$sandbox_home"
 HOME="$sandbox_home" bash "$INSTALL_SCRIPT" --global >/dev/null
