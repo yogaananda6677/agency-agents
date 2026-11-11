@@ -1,0 +1,28 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
+  "name": "agentsv2",
+  "displayName": "AgentsV2 Developer Orchestrator",
+  "version": "1.0.0",
+  "description": "Doc-first developer orchestration plugin with strict phase-gate rejection rules, bounded docs-alignment loops, subagent factory, and multi-stage review lifecycle.",
+  "logo": "assets/logo.svg",
+  "suggestedPrompts": [
+    "Use /agentsv2 to start a new project with docs-first architecture and full review lifecycle",
+    "Use /agentsv2 to audit docs, fix drift, and continue developing this existing codebase",
+    "Use /agentsv2-create-subagent to create a specialized custom subagent for this project"
+  ],
+  "author": {
+    "name": "yogaananda6677",
+    "url": "https://github.com/yogaananda6677"
+  },
+  "homepage": "https://github.com/yogaananda6677/agency-agents",
+  "repository": "https://github.com/yogaananda6677/agency-agents",
+  "license": "MIT",
+  "keywords": [
+    "developer",
+    "orchestration",
+    "subagents",
+    "lifecycle",
+    "documentation",
+    "code-review"
+  ]
+}

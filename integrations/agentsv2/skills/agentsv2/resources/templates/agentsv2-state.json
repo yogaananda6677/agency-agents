@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "enabled": true,
+  "mode": "greenfield",
+  "phase": "docs_gate",
+  "workflow_active": true,
+  "paused_waiting_for_user": false,
+  "docs_verified": false,
+  "review_status": "PENDING",
+  "docs_synced": false,
+  "max_task_retries": 3,
+  "required_docs": [
+    "docs/PRD.md",
+    "docs/ARCHITECTURE.md",
+    "docs/TASKS.md"
+  ],
+  "task_retries": {},
+  "updated_at": ""
+}
